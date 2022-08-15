@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000
 const path = require('path')
 const passport = require('passport')
 const session = require('express-session')
+const MongoStore = require('connect-mongo')
 
 //load config
 dotenv.config({ path: './config/config.env' })
@@ -36,7 +37,10 @@ app.set('view engine', '.hbs')
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI
+    })
 }))
 
 //passport middleware
