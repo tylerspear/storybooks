@@ -3,6 +3,7 @@ const app = express()
 const dotenv = require('dotenv')
 const morgan = require('morgan')
 const exphbs = require('express-handlebars')
+const methodOverride = require('method-override')
 const connectDB = require('./config/db')
 const PORT = process.env.PORT || 3000
 const path = require('path')
@@ -23,12 +24,21 @@ connectDB()
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
+//method override for PUT requests
+app.use(methodOverride(function(req, res) {
+    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+        let method = req.body._method
+        delete req.body._method
+        return method
+    }
+}))
+
 //Morgan
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
 
-const { formatDate, stripTags, truncate, editIcon } = require('./helpers/hbs')
+const { formatDate, stripTags, truncate, editIcon, select } = require('./helpers/hbs')
 
 //handlebars
 app.engine('.hbs', exphbs.engine({
@@ -36,7 +46,8 @@ app.engine('.hbs', exphbs.engine({
         formatDate,
         stripTags,
         truncate,
-        editIcon
+        editIcon,
+        select
     },
     defaultLayout: 'main',
     extname: '.hbs'
